@@ -174,7 +174,7 @@ RUN chmod +x /start.sh
 # 6080: noVNC web interface
 # 5554: Emulator console port
 # 5555: ADB port
-EXPOSE 6080 5554 5555
+EXPOSE 6080 5554 5555 4040
 
 # Set working directory
 WORKDIR /
