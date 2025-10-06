@@ -46,6 +46,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install ngrok
+RUN wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-linux-amd64.zip \
+    && unzip ngrok-stable-linux-amd64.zip \
+    && mv ngrok /usr/local/bin/ \
+    && rm ngrok-stable-linux-amd64.zip
+
 # Install NoVNC for web browser access
 RUN mkdir -p /opt/novnc/utils/websockify \
     && wget -qO- https://github.com/novnc/noVNC/archive/v1.2.0.tar.gz | tar xz --strip 1 -C /opt/novnc \
@@ -146,6 +152,16 @@ echo "Android Emulator is starting..."
 echo "Web VNC access: http://localhost:6080"
 echo "ADB port: 5554/5555"
 echo "==================================="
+
+# Start ngrok tunnel to port 6080
+echo "Starting ngrok tunnel to port 6080..."
+ngrok http 6080 --log=stdout > /var/log/ngrok.log 2>&1 &
+NGROK_PID=$!
+sleep 5
+
+# Optional: Print public URL from ngrok API
+NGROK_URL=$(curl --silent http://localhost:4040/api/tunnels | grep -o 'https://[a-z0-9]*\.ngrok.io')
+echo "Ngrok public URL: $NGROK_URL"
 
 # Wait for all processes
 wait $XVFB_PID $FLUXBOX_PID $VNC_PID $NOVNC_PID $EMULATOR_PID
